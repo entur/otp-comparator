@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
 import { Button } from '@entur/button'
+import { DatePicker, TimePicker } from '@entur/datepicker'
 import { Contrast } from '@entur/layout'
 import { Heading2 } from '@entur/typography'
 
@@ -13,7 +14,11 @@ const Home: React.FC = () => {
     const [origin, setOrigin] = useState<string>('')
     const [destination, setDestination] = useState<string>('')
 
-    const [dateTime, setDateTime] = useState<string>(new Date().toISOString())
+    const [date, setDate] = useState<Date>(new Date())
+
+    const dateTime = date.toISOString()
+
+    console.log('datetime', dateTime)
 
     return (
         <div style={{ display: 'flex', flexDirection: 'row', flex: 1 }}>
@@ -34,13 +39,27 @@ const Home: React.FC = () => {
                         item ? setDestination(item.value) : undefined
                     }
                 />
+
+                <div style={{ marginTop: 20 }}>
+                    <DatePicker
+                        selectedDate={date}
+                        onChange={(d) => setDate(d as Date)}
+                        label="Velg dato"
+                    />
+                    <TimePicker
+                        selectedTime={date}
+                        onChange={(d) => setDate(d as Date)}
+                        label="Tid"
+                    />
+                </div>
+
                 <Button
                     style={{ marginTop: 20 }}
                     variant="primary"
-                    onClick={() => setDateTime(new Date().toISOString())}
+                    onClick={() => setDate(new Date())}
                     disabled={!origin || !destination}
                 >
-                    Søk
+                    Sett tid til nå
                 </Button>
             </Contrast>
             <div className="column">

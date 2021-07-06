@@ -38,6 +38,7 @@ const Autosuggest: React.FC<Props> = ({ onSelect, label, placeholder }) => {
         <Dropdown
             items={search}
             searchable
+            clearable={false}
             debounceTimeout={300}
             onChange={onSelect}
             label={label}
