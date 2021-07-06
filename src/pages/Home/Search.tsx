@@ -224,6 +224,7 @@ const Search: React.FC<Props> = (props) => {
                     ? `Søketid: ${loading ? '...' : executionTime} ms`
                     : ' '}
             </Paragraph>
+            {!result?.length ? <Paragraph>Ingen resultat.</Paragraph> : null}
             {result.map((tripPattern, index) => (
                 <TripPattern key={index} tripPattern={tripPattern} />
             ))}
