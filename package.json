@@ -25,7 +25,8 @@
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
-        "format": "prettier src --write"
+        "format": "prettier src --write",
+        "deploy": "npm run build && firebase deploy"
     },
     "eslintConfig": {
         "extends": "react-app"
