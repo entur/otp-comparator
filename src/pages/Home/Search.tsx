@@ -42,6 +42,10 @@ query ($numTripPatterns: Int!, $from: Location!, $to: Location!, $dateTime: Date
           fromPlace {
             name
           }
+          line {
+              id
+              publicCode
+          }
         }
       }
     }
@@ -76,6 +80,10 @@ const QUERY_OTP2 = `
             transportSubmode
             fromPlace {
                 name
+            }
+            line {
+                id
+                publicCode
             }
           }
         }
