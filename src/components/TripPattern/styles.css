@@ -1,0 +1,31 @@
+.trip-pattern {
+    border-radius: var(--border-radiuses-default);
+    box-shadow: var(--shadows-card-shadow);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.trip-pattern__header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.trip-pattern__legs {
+    display: flex;
+    flex-direction: row;
+}
+
+.trip-pattern__leg {
+    margin-left: 1rem;
+}
+
+.trip-pattern__leg:first-child {
+    margin-left: 0;
+}
+
+.trip-pattern__leg-line {
+    margin-top: 0.5rem;
+}
