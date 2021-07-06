@@ -24,6 +24,7 @@ interface Props {
 function getTransportIcon(mode: string) {
     switch (mode) {
         case 'bus':
+        case 'coach':
             return <BusIcon />
         case 'car':
             return <CarIcon />
