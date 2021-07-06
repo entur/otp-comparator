@@ -167,6 +167,9 @@ const Search: React.FC<Props> = (props) => {
     const [executionTime, setExecutionTime] = useState<number>(0)
 
     useEffect(() => {
+        if (!searchParams.origin || !searchParams.destination) {
+            return
+        }
         const start = new Date()
         setLoading(true)
         search(searchParams, otpVersion, environment)
@@ -215,10 +218,12 @@ const Search: React.FC<Props> = (props) => {
                     }
                 />
             </div>
-            {loading ? <Loader /> : null}
-            {executionTime > 0 ? (
-                <Paragraph>Søketid: {executionTime} ms</Paragraph>
-            ) : null}
+            {loading ? <Loader /> : <div style={{ height: 5 }} />}
+            <Paragraph>
+                {executionTime > 0
+                    ? `Søketid: ${loading ? '...' : executionTime} ms`
+                    : ' '}
+            </Paragraph>
             {result.map((tripPattern, index) => (
                 <TripPattern key={index} tripPattern={tripPattern} />
             ))}
