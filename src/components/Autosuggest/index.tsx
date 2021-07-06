@@ -8,32 +8,33 @@ interface Props {
     placeholder?: string
 }
 
-const Autosuggest: React.FC<Props> = ({ onSelect, label, placeholder }) => {
-    const search = async (text: string) => {
-        if (!text) return []
+async function search(text: string) {
+    if (!text) return []
 
-        const queryParams = new URLSearchParams({
-            text,
-        })
+    const queryParams = new URLSearchParams({
+        text,
+        layers: 'venue',
+    })
 
-        const res = await fetch(
-            'https://api.entur.io/geocoder/v1/autocomplete?' + queryParams,
-            {
-                method: 'GET',
-                headers: {
-                    'ET-Client-Name': 'entur-otp-comparator',
-                },
+    const res = await fetch(
+        'https://api.entur.io/geocoder/v1/autocomplete?' + queryParams,
+        {
+            method: 'GET',
+            headers: {
+                'ET-Client-Name': 'entur-otp-comparator',
             },
-        )
+        },
+    )
 
-        const featureCollection = await res.json()
+    const featureCollection = await res.json()
 
-        return featureCollection.features.map((feature: any) => ({
-            value: feature.properties.id,
-            label: feature.properties.label,
-        }))
-    }
+    return featureCollection.features.map((feature: any) => ({
+        value: feature.properties.id,
+        label: feature.properties.label,
+    }))
+}
 
+const Autosuggest: React.FC<Props> = ({ onSelect, label, placeholder }) => {
     return (
         <Dropdown
             items={search}
