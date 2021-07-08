@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 
 import { Button } from '@entur/button'
 import { DatePicker, TimePicker } from '@entur/datepicker'
@@ -18,7 +18,20 @@ const Home: React.FC = () => {
 
     const dateTime = date.toISOString()
 
-    console.log('datetime', dateTime)
+    const searchParams = useMemo(
+        () => ({
+            from: {
+                place: origin,
+            },
+            to: {
+                place: destination,
+            },
+            dateTime,
+            numTripPatterns: 5,
+            arriveBy: false,
+        }),
+        [origin, destination, dateTime],
+    )
 
     return (
         <div style={{ display: 'flex', flexDirection: 'row', flex: 1 }}>
@@ -63,16 +76,10 @@ const Home: React.FC = () => {
                 </Button>
             </Contrast>
             <div className="column">
-                <Search
-                    searchParams={{ origin, destination, dateTime }}
-                    defaultOtpVersion={1}
-                />
+                <Search searchParams={searchParams} defaultOtpVersion={1} />
             </div>
             <div className="column">
-                <Search
-                    searchParams={{ origin, destination, dateTime }}
-                    defaultOtpVersion={2}
-                />
+                <Search searchParams={searchParams} defaultOtpVersion={2} />
             </div>
         </div>
     )

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { Heading2, Paragraph } from '@entur/typography'
+import { Heading2, Paragraph, Link } from '@entur/typography'
 import { Loader } from '@entur/loader'
 
 import './styles.css'
@@ -111,6 +111,23 @@ function getApiVersion(otpVersion: number) {
     }
 }
 
+function getShamashUrl(
+    searchParams: any,
+    otpVersion: number,
+    env: string,
+): string {
+    const service =
+        otpVersion === 1 ? 'journey-planner' : 'journey-planner-v3-beta'
+
+    const query = otpVersion === 1 ? QUERY_OTP1 : QUERY_OTP2
+    const minifiedQuery = query.replace(/\s+/g, ' ')
+    const variables = JSON.stringify(searchParams)
+
+    return `${getBaseUrl(
+        env,
+    )}/graphql-explorer/${service}?query=${minifiedQuery}&variables=${variables}`
+}
+
 async function search(
     searchParams: any,
     otpVersion: number,
@@ -122,10 +139,6 @@ async function search(
 
     const query = otpVersion === 1 ? QUERY_OTP1 : QUERY_OTP2
 
-    if (!searchParams.origin || !searchParams.destination) {
-        return []
-    }
-
     const result = await fetch(url, {
         method: 'POST',
         headers: {
@@ -134,18 +147,7 @@ async function search(
         },
         body: JSON.stringify({
             query,
-            variables: {
-                numTripPatterns: 5,
-                dateTime: new Date().toISOString(),
-                arriveBy: false,
-                ...searchParams,
-                from: {
-                    place: searchParams.origin,
-                },
-                to: {
-                    place: searchParams.destination,
-                },
-            },
+            variables: searchParams,
         }),
     })
 
@@ -167,7 +169,7 @@ const Search: React.FC<Props> = (props) => {
     const [executionTime, setExecutionTime] = useState<number>(0)
 
     useEffect(() => {
-        if (!searchParams.origin || !searchParams.destination) {
+        if (!searchParams.from.place || !searchParams.to.place) {
             return
         }
         const start = new Date()
@@ -187,6 +189,12 @@ const Search: React.FC<Props> = (props) => {
             <Heading2>
                 OTP {otpVersion} {environment}
             </Heading2>
+            <Link
+                href={getShamashUrl(searchParams, otpVersion, environment)}
+                target="_blank"
+            >
+                Utforsk i GraphQL Explorer.
+            </Link>
             <div
                 style={{
                     display: 'flex',
