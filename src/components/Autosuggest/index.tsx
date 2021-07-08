@@ -8,8 +8,23 @@ interface Props {
     placeholder?: string
 }
 
+const DEFAULT_ITEMS = [
+    {
+        value: 'NSR:StopPlace:59872',
+        label: 'Oslo S, Oslo',
+    },
+    {
+        value: 'NSR:StopPlace:59983',
+        label: 'Bergen stasjon, Bergen',
+    },
+    {
+        value: 'NSR:StopPlace:420',
+        label: 'Lillehammer stasjon, Lillehammer',
+    },
+]
+
 async function search(text: string) {
-    if (!text) return []
+    if (!text) return DEFAULT_ITEMS
 
     const queryParams = new URLSearchParams({
         text,
