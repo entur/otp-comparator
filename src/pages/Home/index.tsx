@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 
 import { Button } from '@entur/button'
 import { DatePicker, TimePicker } from '@entur/datepicker'
+import { TextField } from '@entur/form'
 import { Contrast } from '@entur/layout'
 import { Heading2 } from '@entur/typography'
 
@@ -13,8 +14,8 @@ import './styles.css'
 const Home: React.FC = () => {
     const [origin, setOrigin] = useState<string>('')
     const [destination, setDestination] = useState<string>('')
-
     const [date, setDate] = useState<Date>(new Date())
+    const [numTripPatterns, setNumTripPatterns] = useState<number>(5)
 
     const dateTime = date.toISOString()
 
@@ -27,10 +28,10 @@ const Home: React.FC = () => {
                 place: destination,
             },
             dateTime,
-            numTripPatterns: 5,
+            numTripPatterns,
             arriveBy: false,
         }),
-        [origin, destination, dateTime],
+        [origin, destination, dateTime, numTripPatterns],
     )
 
     return (
@@ -74,6 +75,16 @@ const Home: React.FC = () => {
                 >
                     Sett tid til nå
                 </Button>
+
+                <TextField
+                    type="number"
+                    label="numTripPatterns"
+                    value={numTripPatterns}
+                    style={{ marginTop: 20 }}
+                    onChange={(event) =>
+                        setNumTripPatterns(Number(event.currentTarget.value))
+                    }
+                />
             </Contrast>
             <div className="column">
                 <Search searchParams={searchParams} defaultOtpVersion={1} />
