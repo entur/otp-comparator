@@ -2,9 +2,9 @@ import React, { useState, useMemo } from 'react'
 
 import { Button } from '@entur/button'
 import { DatePicker, TimePicker } from '@entur/datepicker'
-import { TextField } from '@entur/form'
+import { Switch, TextField } from '@entur/form'
 import { Contrast } from '@entur/layout'
-import { Heading2 } from '@entur/typography'
+import { Heading2, Label } from '@entur/typography'
 
 import Autosuggest from '../../components/Autosuggest'
 
@@ -16,6 +16,7 @@ const Home: React.FC = () => {
     const [destination, setDestination] = useState<string>('')
     const [date, setDate] = useState<Date>(new Date())
     const [numTripPatterns, setNumTripPatterns] = useState<number>(5)
+    const [arriveBy, setArriveBy] = useState<boolean>(false)
 
     const dateTime = date.toISOString()
 
@@ -29,9 +30,9 @@ const Home: React.FC = () => {
             },
             dateTime,
             numTripPatterns,
-            arriveBy: false,
+            arriveBy,
         }),
-        [origin, destination, dateTime, numTripPatterns],
+        [origin, destination, dateTime, numTripPatterns, arriveBy],
     )
 
     return (
@@ -85,6 +86,14 @@ const Home: React.FC = () => {
                         setNumTripPatterns(Number(event.currentTarget.value))
                     }
                 />
+
+                <Label style={{ display: 'block', marginTop: 20 }}>
+                    arriveBy
+                    <Switch
+                        checked={arriveBy}
+                        onChange={() => setArriveBy((prev) => !prev)}
+                    />
+                </Label>
             </Contrast>
             <div className="column">
                 <Search searchParams={searchParams} defaultOtpVersion={1} />
