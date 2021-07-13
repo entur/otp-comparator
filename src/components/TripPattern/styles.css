@@ -3,6 +3,7 @@
     box-shadow: var(--shadows-card-shadow);
     padding: 1rem;
     margin-bottom: 1rem;
+    cursor: pointer;
 }
 
 .trip-pattern__header {

@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 
+import { Dropdown } from '@entur/dropdown'
 import { Heading2, Paragraph, Link } from '@entur/typography'
 import { Loader } from '@entur/loader'
+import { Modal } from '@entur/modal'
 
 import './styles.css'
 import { useEffect } from 'react'
 import TripPattern from '../../components/TripPattern'
-import { Dropdown } from '@entur/dropdown'
 
 const QUERY_OTP1 = `
 query ($numTripPatterns: Int!, $from: Location!, $to: Location!, $dateTime: DateTime!, $arriveBy: Boolean!, $modes: [Mode], $transportSubmodes: [TransportSubmodeFilter], $walkSpeed: Float, $minimumTransferTime: Int, $banned: InputBanned, $whiteListed: InputWhiteListed) {
@@ -168,6 +169,8 @@ const Search: React.FC<Props> = (props) => {
     const [result, setResult] = useState<any[]>([])
     const [executionTime, setExecutionTime] = useState<number>(0)
 
+    const [selectedPattern, setSelectedPattern] = useState<any | undefined>()
+
     useEffect(() => {
         if (!searchParams.from.place || !searchParams.to.place) {
             return
@@ -234,8 +237,20 @@ const Search: React.FC<Props> = (props) => {
             </Paragraph>
             {!result?.length ? <Paragraph>Ingen resultat.</Paragraph> : null}
             {result.map((tripPattern, index) => (
-                <TripPattern key={index} tripPattern={tripPattern} />
+                <TripPattern
+                    key={index}
+                    tripPattern={tripPattern}
+                    onClick={setSelectedPattern}
+                />
             ))}
+            <Modal
+                open={!!selectedPattern}
+                size="large"
+                title="Detaljer"
+                onDismiss={() => setSelectedPattern(undefined)}
+            >
+                <pre>{JSON.stringify(selectedPattern, null, 2)}</pre>
+            </Modal>
         </div>
     )
 }

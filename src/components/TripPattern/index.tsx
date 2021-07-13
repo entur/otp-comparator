@@ -19,6 +19,7 @@ import './styles.css'
 
 interface Props {
     tripPattern: any
+    onClick: (tripPattern: any) => void
 }
 
 function getTransportIcon(mode: string) {
@@ -45,8 +46,12 @@ function getTransportIcon(mode: string) {
     }
 }
 
-const TripPattern: React.FC<Props> = ({ tripPattern }) => (
-    <div key={tripPattern.id} className="trip-pattern">
+const TripPattern: React.FC<Props> = ({ tripPattern, onClick }) => (
+    <div
+        key={tripPattern.id}
+        className="trip-pattern"
+        onClick={() => onClick(tripPattern)}
+    >
         <div className="trip-pattern__header">
             <Heading3 margin="none">
                 Fra {tripPattern.legs[0].fromPlace.name}
