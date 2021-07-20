@@ -1,6 +1,12 @@
 import React from 'react'
 import { Dropdown } from '@entur/dropdown'
+import createEnturClient from '@entur/sdk'
 import { NormalizedDropdownItemType } from '@entur/dropdown/dist/useNormalizedItems'
+
+
+const enturClient = createEnturClient({
+    clientName: 'entur-otp-comparator',
+})
 
 interface Props {
     onSelect: (item: NormalizedDropdownItemType | null) => void
@@ -26,26 +32,14 @@ const DEFAULT_ITEMS = [
 async function search(text: string) {
     if (!text) return DEFAULT_ITEMS
 
-    const queryParams = new URLSearchParams({
+    const featureCollection = await enturClient.geocoder.autocomplete({
         text,
-        layers: 'venue',
+        layers: ['venue'],
     })
 
-    const res = await fetch(
-        'https://api.entur.io/geocoder/v1/autocomplete?' + queryParams,
-        {
-            method: 'GET',
-            headers: {
-                'ET-Client-Name': 'entur-otp-comparator',
-            },
-        },
-    )
-
-    const featureCollection = await res.json()
-
-    return featureCollection.features.map((feature: any) => ({
+    return featureCollection.features.map((feature) => ({
         value: feature.properties.id,
-        label: feature.properties.label,
+        label: feature.properties.label || feature.properties.name,
     }))
 }
 

@@ -12,6 +12,7 @@
         "@entur/loader": "^0.4.1",
         "@entur/menu": "^3.6.5",
         "@entur/modal": "^1.5.2",
+        "@entur/sdk": "^4.1.0-rc.0",
         "@entur/tokens": "^3.1.0",
         "@entur/travel": "^4.2.8",
         "@entur/typography": "^1.6.7",
