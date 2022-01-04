@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
+import { ApolloClient, gql, InMemoryCache } from '@apollo/client'
 
 import { Dropdown } from '@entur/dropdown'
 import { Heading2, Paragraph, Link } from '@entur/typography'
@@ -9,88 +10,111 @@ import './styles.css'
 import { useEffect } from 'react'
 import TripPattern from '../../components/TripPattern'
 
-const QUERY_OTP1 = `
-query ($numTripPatterns: Int!, $from: Location!, $to: Location!, $dateTime: DateTime!, $arriveBy: Boolean!, $modes: [Mode], $transportSubmodes: [TransportSubmodeFilter], $walkSpeed: Float, $minimumTransferTime: Int, $banned: InputBanned, $whiteListed: InputWhiteListed) {
-    trip(
-      numTripPatterns: $numTripPatterns,
-      from: $from,
-      to: $to,
-      dateTime: $dateTime,
-      arriveBy: $arriveBy,
-      modes: $modes,
-      transportSubmodes: $transportSubmodes,
-      walkSpeed: $walkSpeed,
-      minimumTransferTime: $minimumTransferTime,
-      banned: $banned,
-      whiteListed: $whiteListed
+const QUERY_OTP1 = gql`
+    query (
+        $numTripPatterns: Int!
+        $from: Location!
+        $to: Location!
+        $dateTime: DateTime!
+        $arriveBy: Boolean!
+        $modes: [Mode]
+        $transportSubmodes: [TransportSubmodeFilter]
+        $walkSpeed: Float
+        $minimumTransferTime: Int
+        $banned: InputBanned
+        $whiteListed: InputWhiteListed
     ) {
-      tripPatterns {
-        aimedStartTime
-        aimedEndTime
-        expectedStartTime
-        expectedEndTime
-        directDuration
-        duration
-        distance
-        walkDistance
-        legs {
-          aimedStartTime
-          expectedStartTime
-          aimedEndTime
-          expectedEndTime
-          mode
-          transportSubmode
-          fromPlace {
-            name
-          }
-          line {
-              id
-              publicCode
-          }
-        }
-      }
-    }
-  }
-  `
-const QUERY_OTP2 = `
-  query ($numTripPatterns: Int!, $from: Location!, $to: Location!, $dateTime: DateTime!, $arriveBy: Boolean!, $modes: Modes, $walkSpeed: Float, $banned: InputBanned, $whiteListed: InputWhiteListed) {
-      trip(
-        numTripPatterns: $numTripPatterns,
-        from: $from,
-        to: $to,
-        dateTime: $dateTime,
-        arriveBy: $arriveBy,
-        modes: $modes,
-        walkSpeed: $walkSpeed,
-        banned: $banned,
-        whiteListed: $whiteListed
-      ) {
-        tripPatterns {
-          expectedStartTime
-          expectedEndTime
-          directDuration
-          duration
-          distance
-          walkDistance
-          legs {
-            aimedStartTime
-            expectedStartTime
-            aimedEndTime
-            expectedEndTime
-            mode
-            transportSubmode
-            fromPlace {
-                name
+        trip(
+            numTripPatterns: $numTripPatterns
+            from: $from
+            to: $to
+            dateTime: $dateTime
+            arriveBy: $arriveBy
+            modes: $modes
+            transportSubmodes: $transportSubmodes
+            walkSpeed: $walkSpeed
+            minimumTransferTime: $minimumTransferTime
+            banned: $banned
+            whiteListed: $whiteListed
+        ) {
+            tripPatterns {
+                aimedStartTime
+                aimedEndTime
+                expectedStartTime
+                expectedEndTime
+                directDuration
+                duration
+                distance
+                walkDistance
+                legs {
+                    aimedStartTime
+                    expectedStartTime
+                    aimedEndTime
+                    expectedEndTime
+                    mode
+                    transportSubmode
+                    fromPlace {
+                        name
+                    }
+                    line {
+                        id
+                        publicCode
+                    }
+                }
             }
-            line {
-                id
-                publicCode
-            }
-          }
         }
-      }
     }
-    `
+`
+
+const QUERY_OTP2 = gql`
+    query (
+        $numTripPatterns: Int!
+        $from: Location!
+        $to: Location!
+        $dateTime: DateTime!
+        $arriveBy: Boolean!
+        $modes: Modes
+        $walkSpeed: Float
+        $banned: InputBanned
+        $whiteListed: InputWhiteListed
+    ) {
+        trip(
+            numTripPatterns: $numTripPatterns
+            from: $from
+            to: $to
+            dateTime: $dateTime
+            arriveBy: $arriveBy
+            modes: $modes
+            walkSpeed: $walkSpeed
+            banned: $banned
+            whiteListed: $whiteListed
+        ) {
+            tripPatterns {
+                expectedStartTime
+                expectedEndTime
+                directDuration
+                duration
+                distance
+                walkDistance
+                legs {
+                    aimedStartTime
+                    expectedStartTime
+                    aimedEndTime
+                    expectedEndTime
+                    mode
+                    transportSubmode
+                    fromPlace {
+                        name
+                    }
+                    line {
+                        id
+                        publicCode
+                    }
+                }
+            }
+        }
+    }
+`
 
 function getBaseUrl(env: string) {
     switch (env) {
@@ -121,40 +145,12 @@ function getShamashUrl(
         otpVersion === 1 ? 'journey-planner' : 'journey-planner-v3-beta'
 
     const query = otpVersion === 1 ? QUERY_OTP1 : QUERY_OTP2
-    const minifiedQuery = query.replace(/\s+/g, ' ')
+    const minifiedQuery = (query.loc?.source.body || '').replace(/\s+/g, ' ')
     const variables = JSON.stringify(searchParams)
 
     return `${getBaseUrl(
         env,
     )}/graphql-explorer/${service}?query=${minifiedQuery}&variables=${variables}`
-}
-
-async function search(
-    searchParams: any,
-    otpVersion: number,
-    env: string,
-): Promise<any> {
-    const url = `${getBaseUrl(env)}/journey-planner/${getApiVersion(
-        otpVersion,
-    )}/graphql`
-
-    const query = otpVersion === 1 ? QUERY_OTP1 : QUERY_OTP2
-
-    const result = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'ET-Client-Name': 'entur-otp-comparator',
-        },
-        body: JSON.stringify({
-            query,
-            variables: searchParams,
-        }),
-    })
-
-    const body = await result.json()
-
-    return body?.data?.trip?.tripPatterns || []
 }
 
 const Search: React.FC<Props> = (props) => {
@@ -171,21 +167,39 @@ const Search: React.FC<Props> = (props) => {
 
     const [selectedPattern, setSelectedPattern] = useState<any | undefined>()
 
+    const uri = `${getBaseUrl(environment)}/journey-planner/${getApiVersion(
+        otpVersion,
+    )}/graphql`
+
+    const client = useMemo(
+        () =>
+            new ApolloClient({
+                uri,
+                cache: new InMemoryCache(),
+            }),
+        [uri],
+    )
+
     useEffect(() => {
         if (!searchParams.from.place || !searchParams.to.place) {
             return
         }
         const start = new Date()
         setLoading(true)
-        search(searchParams, otpVersion, environment)
+
+        client
+            .query({
+                query: otpVersion === 1 ? QUERY_OTP1 : QUERY_OTP2,
+                variables: searchParams,
+            })
             .then((res) => {
                 setExecutionTime(new Date().getTime() - start.getTime())
-                setResult(res)
+                setResult(res.data?.trip?.tripPatterns || [])
             })
             .finally(() => {
                 setLoading(false)
             })
-    }, [searchParams, otpVersion, environment])
+    }, [client, searchParams, otpVersion])
 
     return (
         <div>
