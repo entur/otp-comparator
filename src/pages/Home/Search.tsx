@@ -141,8 +141,7 @@ function getShamashUrl(
     otpVersion: number,
     env: string,
 ): string {
-    const service =
-        otpVersion === 1 ? 'journey-planner' : 'journey-planner-v3-beta'
+    const service = otpVersion === 1 ? 'journey-planner' : 'journey-planner-v3'
 
     const query = otpVersion === 1 ? QUERY_OTP1 : QUERY_OTP2
     const minifiedQuery = (query.loc?.source.body || '').replace(/\s+/g, ' ')
