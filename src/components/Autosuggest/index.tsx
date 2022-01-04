@@ -3,7 +3,6 @@ import { Dropdown } from '@entur/dropdown'
 import createEnturClient from '@entur/sdk'
 import { NormalizedDropdownItemType } from '@entur/dropdown/dist/useNormalizedItems'
 
-
 const enturClient = createEnturClient({
     clientName: 'entur-otp-comparator',
 })
