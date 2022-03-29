@@ -96,10 +96,14 @@ const Home: React.FC = () => {
                 </Label>
             </Contrast>
             <div className="column">
-                <Search searchParams={searchParams} defaultOtpVersion={1} />
+                <Search
+                    searchParams={searchParams}
+                    defaultOtpVersion={'nordic'}
+                    defaultEnvironment="dev"
+                />
             </div>
             <div className="column">
-                <Search searchParams={searchParams} defaultOtpVersion={2} />
+                <Search searchParams={searchParams} defaultOtpVersion={'2'} />
             </div>
         </div>
     )

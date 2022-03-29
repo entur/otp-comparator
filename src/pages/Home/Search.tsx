@@ -116,7 +116,9 @@ const QUERY_OTP2 = gql`
     }
 `
 
-function getBaseUrl(env: string) {
+type OtpVersion = '1' | '2' | 'nordic'
+
+function getBaseUrl(env: string): string {
     switch (env) {
         case 'dev':
             return 'https://api.dev.entur.io'
@@ -127,35 +129,59 @@ function getBaseUrl(env: string) {
     }
 }
 
-function getApiVersion(otpVersion: number) {
+function getEndpointUrl(otpVersion: OtpVersion, env: string): string {
+    const base = getBaseUrl(env)
+
+    if (otpVersion === 'nordic') {
+        return `${base}/journey-planner/v3/nordic/graphql`
+    }
+
+    return `${base}/journey-planner/${getApiVersion(otpVersion)}/graphql`
+}
+
+function getApiVersion(otpVersion: OtpVersion) {
     switch (otpVersion) {
-        case 2:
-            return 'v3'
-        default:
+        case '1':
             return 'v2'
+        default:
+            return 'v3'
     }
 }
 
 function getShamashUrl(
     searchParams: any,
-    otpVersion: number,
+    otpVersion: OtpVersion,
     env: string,
 ): string {
-    const service = otpVersion === 1 ? 'journey-planner' : 'journey-planner-v3'
+    const service = (() => {
+        switch (otpVersion) {
+            case '1':
+                return 'journey-planner'
+            case '2':
+                return 'journey-planner-v3'
+            case 'nordic':
+                return 'journey-planner-nordic'
+        }
+    })()
 
-    const query = otpVersion === 1 ? QUERY_OTP1 : QUERY_OTP2
+    const query = otpVersion === '1' ? QUERY_OTP1 : QUERY_OTP2
     const minifiedQuery = (query.loc?.source.body || '').replace(/\s+/g, ' ')
     const variables = JSON.stringify(searchParams)
+    const baseUrl = getBaseUrl(env)
 
-    return `${getBaseUrl(
-        env,
-    )}/graphql-explorer/${service}?query=${minifiedQuery}&variables=${variables}`
+    if (otpVersion === 'nordic') {
+        return `${baseUrl}/graphql-explorer/${service}/nordic?query=${minifiedQuery}&variables=${variables}`
+    }
+
+    return `${baseUrl}/graphql-explorer/${service}?query=${minifiedQuery}&variables=${variables}`
 }
 
 const Search: React.FC<Props> = (props) => {
     const { searchParams, defaultOtpVersion, defaultEnvironment } = props
 
-    const [otpVersion, setOtpVersion] = useState<number>(defaultOtpVersion ?? 1)
+    const [otpVersion, setOtpVersion] = useState<OtpVersion>(
+        defaultOtpVersion ?? '1',
+    )
     const [environment, setEnvironment] = useState<string>(
         defaultEnvironment ?? 'prod',
     )
@@ -166,9 +192,7 @@ const Search: React.FC<Props> = (props) => {
 
     const [selectedPattern, setSelectedPattern] = useState<any | undefined>()
 
-    const uri = `${getBaseUrl(environment)}/journey-planner/${getApiVersion(
-        otpVersion,
-    )}/graphql`
+    const uri = getEndpointUrl(otpVersion, environment)
 
     const client = useMemo(
         () =>
@@ -188,7 +212,7 @@ const Search: React.FC<Props> = (props) => {
 
         client
             .query({
-                query: otpVersion === 1 ? QUERY_OTP1 : QUERY_OTP2,
+                query: otpVersion === '1' ? QUERY_OTP1 : QUERY_OTP2,
                 variables: searchParams,
             })
             .then((res) => {
@@ -222,11 +246,13 @@ const Search: React.FC<Props> = (props) => {
                 <Dropdown
                     label="OTP"
                     value={'' + otpVersion}
-                    items={['1', '2']}
+                    items={['1', '2', 'nordic']}
                     style={{ flex: 1 }}
                     onChange={(item) =>
                         setOtpVersion(
-                            item ? Number(item.value) : defaultOtpVersion ?? 1,
+                            item
+                                ? (item.value as OtpVersion)
+                                : defaultOtpVersion ?? '1',
                         )
                     }
                 />
@@ -270,7 +296,7 @@ const Search: React.FC<Props> = (props) => {
 
 interface Props {
     searchParams: any
-    defaultOtpVersion?: number
+    defaultOtpVersion?: OtpVersion
     defaultEnvironment?: string
 }
 
